@@ -1,13 +1,16 @@
 const { Router } = require("express")
 const{ adminModel , courseModel } =require("../db")
 const jwt = require("jsonwebtoken")
-
+const { adminSigninSchema, adminSgnupSchema } = require("../schema/admin")
+const { z } = require("zod")
 const { JWT_ADMIN_PASSWORD } = require("../config");
 const { adminMiddleware } = require("../middleware/admin")
+const { userSigninSchema } = require("../schema/user")
 
 const adminRouter = Router();
 adminRouter.post("/signup", async function(req, res) {
-    const { email, password, firstName, lastName } = req.body; // TODO: adding zod validation
+    const parsedData = adminSgnupSchema.safeParse(req.body);
+    const { email, password, firstName, lastName } = parsedData.data; // TODO: adding zod validation
     // TODO: hash the password so plaintext pw is not stored in the DB
 
     // TODO: Put inside a try catch block

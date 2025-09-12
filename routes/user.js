@@ -3,11 +3,16 @@ const { userModel, adminModel, courseModel } = require('../db');
 const jwt = require('jsonwebtoken');
 const { JWT_USER_PASSWORD } = require('../config');
 const { userMiddleware } = require('../middleware/user');
+const {  userSignupSchema, userSigninSchema } = require ("../schema/user");
 
-const userRouter = Router;
+const { z } = require('zod');
+const { userSignupSchema } = require('../schema/user');
+
+const userRouter = Router();
 
 userRouter.post('/signup', async (req, res) => {
-    const { email, password , firstname , lastname } = req.body;    
+    const parsedData = userSignupSchema.safeParse(req.body);
+    const { email, password , firstname , lastname } = parsedData.data;    
 
     await userModel.create({
         email :email,
@@ -22,7 +27,8 @@ userRouter.post('/signup', async (req, res) => {
 
 });
  userRouter.post('/signin', async (req, res) => {
-    const { email, password } = req.body;
+    const parsedData = userSigninSchema.safeParse(req.body);
+    const { email, password } = parsedData.data;
 
     const user = await userModel.findOne({
         email : email,  
