@@ -3,6 +3,7 @@ const { userModel, adminModel, courseModel } = require('../db');
 const jwt = require('jsonwebtoken');
 const { JWT_USER_PASSWORD } = require('../config');
 const { userMiddleware } = require('../middleware/user');
+const bcrypt = require('bcrypt');
 const {  userSignupSchema, userSigninSchema } = require ("../schema/user");
 
 const { z } = require('zod');
@@ -13,10 +14,10 @@ const userRouter = Router();
 userRouter.post('/signup', async (req, res) => {
     const parsedData = userSignupSchema.safeParse(req.body);
     const { email, password , firstname , lastname } = parsedData.data;    
-
+    const HashedPassword = await bcrypt.hash(password, 10);
     await userModel.create({
         email :email,
-        password : password,
+        password : HashedPassword,
         firstname : firstname,
         lastname : lastname
     });
@@ -32,10 +33,10 @@ userRouter.post('/signup', async (req, res) => {
 
     const user = await userModel.findOne({
         email : email,  
-        password : password
     })
- if(user){
-    const token = jwt.sign({id : user._id }, JWT_USER_PASSWORD, );
+    const matchedPassword = await bcrypt.compare(password, user.password);
+ if(user && matchedPassword){
+    const token = jwt.sign({id : user._id }, JWT_USER_PASSWORD);
 
     res.json({
         token:token     

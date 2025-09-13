@@ -5,6 +5,7 @@ const { adminSigninSchema, adminSgnupSchema } = require("../schema/admin")
 const { z } = require("zod")
 const { JWT_ADMIN_PASSWORD } = require("../config");
 const { adminMiddleware } = require("../middleware/admin")
+const bcrypt = require("bcrypt")
 const { userSigninSchema } = require("../schema/user")
 
 const adminRouter = Router();
